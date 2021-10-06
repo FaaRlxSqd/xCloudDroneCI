@@ -21,9 +21,6 @@ git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 git clone --depth=1 https://github.com/kdrag0n/proton-clang xRageTC # xRageTC set as Clang Default
 
 # Main Declaration
-export ARCH=arm64
-export SUBARCH=arm64
-export DTC_EXT=dtc
 KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME # IMPORTANT ! Fill with your kernel source root directory.
 DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG # IMPORTANT ! Declare your kernel source defconfig file here.
 CLANG_ROOTDIR=$(pwd)/xRageTC # IMPORTANT! Put your clang directory here.
@@ -78,7 +75,6 @@ make -j$(nproc) ARCH=arm64 O=out \
     NM=${CLANG_ROOTDIR}/bin/llvm-nm \
     OBJCOPY=${CLANG_ROOTDIR}/bin/llvm-objcopy \
     OBJDUMP=${CLANG_ROOTDIR}/bin/llvm-objdump \
-    READELF=${CLANG_ROOTDIR}/bin/llvm-readelf \
     STRIP=${CLANG_ROOTDIR}/bin/llvm-strip \
     LD=${CLANG_ROOTDIR}/bin/ld.lld \
     CROSS_COMPILE=${CLANG_ROOTDIR}/bin/aarch64-linux-gnu- \
