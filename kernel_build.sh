@@ -27,7 +27,6 @@ CLANG_ROOTDIR=$(pwd)/xRageTC # IMPORTANT! Put your clang directory here.
 export KBUILD_BUILD_USER=$BUILD_USER # Change with your own name or else.
 export KBUILD_BUILD_HOST=$BUILD_HOST # Change with your own hostname.
 CLANG_VER="$("$CLANG_ROOTDIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
-LLD_VER="$("$CLANG_ROOTDIR"/bin/ld.lld --version | head -n 1)"
 export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
 IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 DATE=$(date +"%F-%S")
@@ -44,7 +43,6 @@ echo ================================================
 echo BUILDER NAME = ${KBUILD_BUILD_USER}
 echo BUILDER HOSTNAME = ${KBUILD_BUILD_HOST}
 echo DEVICE_DEFCONFIG = ${DEVICE_DEFCONFIG}
-echo TOOLCHAIN_VERSION = ${KBUILD_COMPILER_STRING}
 echo CLANG_ROOTDIR = ${CLANG_ROOTDIR}
 echo KERNEL_ROOTDIR = ${KERNEL_ROOTDIR}
 echo ================================================
@@ -71,12 +69,6 @@ cd ${KERNEL_ROOTDIR}
 make -j$(nproc) O=out ARCH=arm64 ${DEVICE_DEFCONFIG}
 make -j$(nproc) ARCH=arm64 O=out \
     CC=${CLANG_ROOTDIR}/bin/clang \
-    AS=${CLANG_ROOTDIR}/bin/llvm-as \
-    NM=${CLANG_ROOTDIR}/bin/llvm-nm \
-    OBJCOPY=${CLANG_ROOTDIR}/bin/llvm-objcopy \
-    OBJDUMP=${CLANG_ROOTDIR}/bin/llvm-objdump \
-    STRIP=${CLANG_ROOTDIR}/bin/llvm-strip \
-    LD=${CLANG_ROOTDIR}/bin/ld.lld \
     CROSS_COMPILE=${CLANG_ROOTDIR}/bin/aarch64-linux-gnu- \
     CROSS_COMPILE_ARM32=${CLANG_ROOTDIR}/bin/arm-linux-gnueabi-
 
