@@ -1,10 +1,13 @@
+--- 
+clone: 
+  depth: 1
 kind: pipeline
-name : xKernel Compiler
-version: rev1.5_template
-steps:
- - name: xKernel Compilation
-   image: xyzuan/xdocker:latest
-   environment:
+name: RyuuPipeline
+concurrency:
+  limit: 6
+steps: 
+  - 
+    environment:
      KERNEL_NAME:
        from_secret: KERNEL_NAME
      KERNEL_SOURCE:
@@ -25,5 +28,10 @@ steps:
        from_secret: BUILD_USER
      BUILD_HOST:
        from_secret: BUILD_HOST
-   commands:
-     - bash kernel_build.sh
+    image: archlinux:base-devel
+    name: RyuujiX-Build
+    commands: 
+      - curl -LO "https://repo.archlinuxcn.org/x86_64/glibc-linux4-2.33-4-x86_64.pkg.tar.zst" && bsdtar -C / -xvf "glibc-linux4-2.33-4-x86_64.pkg.tar.zst"
+      - pacman -Sy && pacman -S git bc inetutils python3 flex bison libc++ libxml2 python-pip zip wget cpio jdk-openjdk tzdata --noconfirm
+      - ln -s /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && date
+      - bash kernel_build.sh
