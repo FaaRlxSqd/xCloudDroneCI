@@ -17,8 +17,8 @@
 
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
-git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
-git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
+git clone $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
+git clone https://gitlab.com/ElectroPerf/atom-x-clang clang
 
 # Main Declaration
 KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME # IMPORTANT ! Fill with your kernel source root directory.
