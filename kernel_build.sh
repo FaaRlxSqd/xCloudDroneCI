@@ -17,7 +17,7 @@
 
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
-git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
+git clone $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 mkdir clang
 wget -q https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master/clang-r433403.tar.gz -O "clang-r433403.tar.gz"
 tar -xf clang-r433403.tar.gz -C clang
