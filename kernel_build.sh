@@ -18,7 +18,7 @@
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
 cd ~
-git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
+git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH lava
   mkdir ~/clang-llvm
   mkdir ~/gcc64-aosp
   mkdir ~/gcc32-aosp
@@ -33,7 +33,7 @@ git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 # Main Declaration
 export DEFCONFIG=lancelot_defconfig
 export TZ="Asia/Jakarta"
-export KERNEL_DIR=$(pwd)/$DEVICE_CODENAME
+export KERNEL_DIR=$(pwd)/lava
 export ZIPNAME="KucingKernel"
 export IMAGE="${OUTDIR}/arch/arm64/boot/Image.gz-dtb"
 export DATE=$(date "+%m%d")
