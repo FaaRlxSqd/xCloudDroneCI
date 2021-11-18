@@ -18,36 +18,31 @@
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
 cd ~
-git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH lava
-  mkdir "$OUTDIR"/clang-llvm
-  mkdir "$OUTDIR"/gcc64-aosp
-  mkdir "$OUTDIR"/gcc32-aosp
-  ! [[ -f "$OUTDIR"/clang-r383902b1.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android11-qpr3-release/clang-r383902b1.tar.gz -P "$OUTDIR"
-  tar -C "$OUTDIR"/clang-llvm/ -zxvf "$OUTDIR"/clang-r383902b1.tar.gz
-  ! [[ -f "$OUTDIR"/android-11.0.0_r35.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r35.tar.gz -P "$OUTDIR"
-  tar -C "$OUTDIR"/gcc64-aosp/ -zxvf "$OUTDIR"/android-11.0.0_r35.tar.gz
-  ! [[ -f "$OUTDIR"/android-11.0.0_r34.tar.gz ]] && wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r34.tar.gz -P "$OUTDIR"
-  tar -C "$OUTDIR"/gcc32-aosp/ -zxvf "$OUTDIR"/android-11.0.0_r34.tar.gz
+git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
+  mkdir ~/clang-llvm
+  mkdir ~/gcc64-aosp
+  mkdir ~/gcc32-aosp
+  ! [[ -f ~/clang-r383902b1.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android11-qpr3-release/clang-r383902b1.tar.gz -P ~/
+  tar -C ~/clang-llvm/ -zxvf ~/clang-r383902b1.tar.gz
+  ! [[ -f ~/android-11.0.0_r35.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r35.tar.gz -P ~/
+  tar -C ~/gcc64-aosp/ -zxvf ~/android-11.0.0_r35.tar.gz
+  ! [[ -f ~/android-11.0.0_r34.tar.gz ]] && wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r34.tar.gz -P ~/
+  tar -C ~/gcc32-aosp/ -zxvf ~/android-11.0.0_r34.tar.gz
 # clang set as Clang Default
 
 # Main Declaration
-export DEFCONFIG=lancelot_defconfig
-export TZ="Asia/Jakarta"
-export KERNEL_DIR=$(pwd)/lava
-export ZIPNAME="KucingKernel"
-export IMAGE="${OUTDIR}/arch/arm64/boot/Image.gz-dtb"
-export DATE=$(date "+%m%d")
-export BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME # IMPORTANT ! Fill with your kernel source root directory.
+DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG # IMPORTANT ! Declare your kernel source defconfig file here.
+CLANG_ROOTDIR=$(pwd)/clang # IMPORTANT! Put your clang directory here.
+export KBUILD_BUILD_USER=$BUILD_USER # Change with your own name or else.
+export KBUILD_BUILD_HOST=$BUILD_HOST # Change with your own hostname.
+CLANG_VER="$("$CLANG_ROOTDIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
+LLD_VER="$("$CLANG_ROOTDIR"/bin/ld.lld --version | head -n 1)"
+export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
+IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
+DATE=$(date +"%F-%S")
+START=$(date +"%s")
 export PATH="${OUTDIR}/clang-llvm/bin:${OUTDIR}/gcc64-aosp/bin:${OUTDIR}/gcc32-aosp/bin:${PATH}"
-export KBUILD_COMPILER_STRING="$(${OUTDIR}/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
-export KBUILD_BUILD_HOST=$(uname -a | awk '{print $2}')
-export ARCH=arm64
-export KBUILD_BUILD_USER=kucingabu
-export HASH_HEAD=$(git rev-parse --short HEAD)
-export COMMIT_HEAD=$(git log --oneline -1)
-export PROCS=$(nproc --all)
-export DISTRO=$(cat /etc/issue)
-export KERVER=$(make kernelversion)
 
 # Checking environtment
 # Warning !! Dont Change anything there without known reason.
@@ -83,16 +78,15 @@ tg_post_msg "<b>xKernelCompiler</b>%0ABuilder Name : <code>${KBUILD_BUILD_USER}<
 compile(){
 tg_post_msg "<b>xKernelCompiler:</b><code>Compilation has started</code>"
 cd ${KERNEL_ROOTDIR}
-  make O="$OUTDIR" ARCH=arm64 lancelot_defconfig
-  make -j"$PROCS" O="$OUTDIR" \
-                  ARCH=arm64 \
-                  CC=clang \
-                  CLANG_TRIPLE=aarch64-linux-gnu- \
-                  CROSS_COMPILE=aarch64-linux-android- \
-                  CROSS_COMPILE_ARM32=arm-linux-androideabi- \
-                  LD=ld.lld \
-                  NM=llvm-nm \
-                  OBJCOPY=llvm-objcopy
+make -j$(nproc) O=out ARCH=arm64 ${DEVICE_DEFCONFIG}
+make -j$(nproc) ARCH=arm64 O=out \
+    CC=clang \
+    CLANG_TRIPLE=aarch64-linux-gnu- \
+    CROSS_COMPILE=aarch64-linux-android- \
+    CROSS_COMPILE_ARM32=arm-linux-androideabi- \
+    LD=ld.lld \
+    NM=llvm-nm \
+    OBJCOPY=llvm-objcopy
 
    if ! [ -a "$IMAGE" ]; then
 	finerr
