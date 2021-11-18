@@ -31,7 +31,7 @@ git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 # clang set as Clang Default
 
 # Main Declaration
-export DEFCONFIG=$DEVICE_DEFCONFIG
+export DEFCONFIG=lancelot_defconfig
 export TZ="Asia/Jakarta"
 export KERNEL_DIR=$(pwd)/$DEVICE_CODENAME
 export ZIPNAME="KucingKernel"
@@ -83,7 +83,7 @@ tg_post_msg "<b>xKernelCompiler</b>%0ABuilder Name : <code>${KBUILD_BUILD_USER}<
 compile(){
 tg_post_msg "<b>xKernelCompiler:</b><code>Compilation has started</code>"
 cd ${KERNEL_ROOTDIR}
-  make O="$OUTDIR" ARCH=arm64 ${DEVICE_DEFCONFIG}
+  make O="$OUTDIR" ARCH=arm64 lancelot_defconfig
   make -j"$PROCS" O="$OUTDIR" \
                   ARCH=arm64 \
                   CC=clang \
