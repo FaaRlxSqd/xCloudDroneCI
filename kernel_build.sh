@@ -18,8 +18,7 @@
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
 cd ~
-git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH ~/lava
-cd ~/lava
+git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH lava
   mkdir "$OUTDIR"/clang-llvm
   mkdir "$OUTDIR"/gcc64-aosp
   mkdir "$OUTDIR"/gcc32-aosp
