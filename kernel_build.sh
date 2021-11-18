@@ -42,7 +42,7 @@ export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
 IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 DATE=$(date +"%F-%S")
 START=$(date +"%s")
-PATH="${PATH}:${CLANG_ROOTDIR}/bin"
+PATH=~/clang-llvm/bin:${PATH}"
 
 # Checking environtment
 # Warning !! Dont Change anything there without known reason.
