@@ -18,16 +18,17 @@
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
 cd ~
-git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH lava
-  mkdir ~/clang-llvm
-  mkdir ~/gcc64-aosp
-  mkdir ~/gcc32-aosp
-  ! [[ -f ~/clang-r383902b1.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android11-qpr3-release/clang-r383902b1.tar.gz -P ~/
-  tar -C ~/clang-llvm/ -zxvf ~/clang-r383902b1.tar.gz
-  ! [[ -f ~/android-11.0.0_r35.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r35.tar.gz -P ~/
-  tar -C ~/gcc64-aosp/ -zxvf ~/android-11.0.0_r35.tar.gz
-  ! [[ -f ~/android-11.0.0_r34.tar.gz ]] && wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r34.tar.gz -P ~/
-  tar -C ~/gcc32-aosp/ -zxvf ~/android-11.0.0_r34.tar.gz
+git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH ~/lava
+cd ~/lava
+  mkdir "$OUTDIR"/clang-llvm
+  mkdir "$OUTDIR"/gcc64-aosp
+  mkdir "$OUTDIR"/gcc32-aosp
+  ! [[ -f "$OUTDIR"/clang-r383902b1.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android11-qpr3-release/clang-r383902b1.tar.gz -P "$OUTDIR"
+  tar -C "$OUTDIR"/clang-llvm/ -zxvf "$OUTDIR"/clang-r383902b1.tar.gz
+  ! [[ -f "$OUTDIR"/android-11.0.0_r35.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r35.tar.gz -P "$OUTDIR"
+  tar -C "$OUTDIR"/gcc64-aosp/ -zxvf "$OUTDIR"/android-11.0.0_r35.tar.gz
+  ! [[ -f "$OUTDIR"/android-11.0.0_r34.tar.gz ]] && wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r34.tar.gz -P "$OUTDIR"
+  tar -C "$OUTDIR"/gcc32-aosp/ -zxvf "$OUTDIR"/android-11.0.0_r34.tar.gz
 # clang set as Clang Default
 
 # Main Declaration
