@@ -42,7 +42,7 @@ export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
 IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 DATE=$(date +"%F-%S")
 START=$(date +"%s")
-export PATH="${OUTDIR}/clang-llvm/bin:${OUTDIR}/gcc64-aosp/bin:${OUTDIR}/gcc32-aosp/bin:${PATH}"
+export PATH="~/clang-llvm/bin:~/gcc64-aosp/bin:~/gcc32-aosp/bin:${PATH}"
 
 # Checking environtment
 # Warning !! Dont Change anything there without known reason.
