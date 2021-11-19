@@ -18,7 +18,16 @@
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
 git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
-git clone --depth=1 https://github.com/xyz-prjkt/xRageTC_build xRageTC # xRageTC set as Clang Default
+cd $DEVICE_CODENAME
+mkdir out/clang-llvm
+mkdir out/gcc64-aosp
+mkdir out/gcc32-aosp
+  ! [[ -f out/clang-r383902b1.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android11-qpr3-release/clang-r383902b1.tar.gz -P out
+  tar -C out/clang-llvm/ -zxvf out/clang-r383902b1.tar.gz
+  ! [[ -f out/android-11.0.0_r35.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r35.tar.gz -P out
+  tar -C out/gcc64-aosp/ -zxvf out/android-11.0.0_r35.tar.gz
+  ! [[ -f out/android-11.0.0_r34.tar.gz ]] && wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r34.tar.gz -P out
+  tar -C out/gcc32-aosp/ -zxvf out/android-11.0.0_r34.tar.gz
 
 # Main Declaration
 KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME # IMPORTANT ! Fill with your kernel source root directory.
@@ -32,7 +41,7 @@ export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
 IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 DATE=$(date +"%F-%S")
 START=$(date +"%s")
-PATH="${PATH}:${CLANG_ROOTDIR}/bin"
+export PATH=out/clang-llvm/bin:out/gcc64-aosp/bin:$out/gcc32-aosp/bin:${PATH}"
 export HASH_HEAD=$(git rev-parse --short HEAD)
 export COMMIT_HEAD=$(git log --oneline -1)
 export KERVER=$(make kernelversion)
@@ -73,15 +82,13 @@ tg_post_msg "<b>xKernelCompiler:</b><code>Compilation has started</code>"
 cd ${KERNEL_ROOTDIR}
 make -j$(nproc) O=out ARCH=arm64 ${DEVICE_DEFCONFIG}
 make -j$(nproc) ARCH=arm64 O=out \
-    CC=${CLANG_ROOTDIR}/bin/clang \
-    AS=${CLANG_ROOTDIR}/bin/llvm-as \
-    NM=${CLANG_ROOTDIR}/bin/llvm-nm \
-    OBJCOPY=${CLANG_ROOTDIR}/bin/llvm-objcopy \
-    OBJDUMP=${CLANG_ROOTDIR}/bin/llvm-objdump \
-    STRIP=${CLANG_ROOTDIR}/bin/llvm-strip \
-    LD=${CLANG_ROOTDIR}/bin/ld.lld \
-    CROSS_COMPILE=${CLANG_ROOTDIR}/bin/aarch64-linux-gnu- \
-    CROSS_COMPILE_ARM32=${CLANG_ROOTDIR}/bin/arm-linux-gnueabi-
+                  CC=clang \
+                  CLANG_TRIPLE=aarch64-linux-gnu- \
+                  CROSS_COMPILE=aarch64-linux-android- \
+                  CROSS_COMPILE_ARM32=arm-linux-androideabi- \
+                  LD=ld.lld \
+                  NM=llvm-nm \
+                  OBJCOPY=llvm-objcopy
 
    if ! [ -a "$IMAGE" ]; then
 	finerr
@@ -111,11 +118,6 @@ function finerr() {
         -d text="Build throw an error(s)"
     exit 1
 }
-
-# Upload something
-curl --upload-file $(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz https://transfer.sh/Image.gz
-curl --upload-file $(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/dtbo.img https://transfer.sh/dtbo.img
-curl --upload-file $(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/mt6768.dtb https://transfer.sh/mt6768.dtb
 
 # Zipping
 function zipping() {
