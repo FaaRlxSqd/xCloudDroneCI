@@ -24,11 +24,11 @@ mkdir out/clang-llvm
 mkdir out/gcc64-aosp
 mkdir out/gcc32-aosp
   wget -q https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master/clang-r433403b.tar.gz -O "clang-r433403b.tar.gz"
-  tar -xf clang-r433403b.tar.gz -C out/clang-llvm
+  tar -xf clang-r433403b.tar.gz -C out/clang-llvm/
   wget -q https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r48.tar.gz -O "android-11.0.0_r48.tar.gz"
-  tar -xf android-11.0.0_r48.tar.gz -C out/gcc64-aosp
-  wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r34.tar.gz -P out
-  tar -C out/gcc32-aosp/ -zxvf out/android-11.0.0_r34.tar.gz
+  tar -xf android-11.0.0_r48.tar.gz -C out/gcc64-aosp/
+  wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r48.tar.gz -O "android.tar.gz"
+  tar -xf android.tar.gz out/gcc32-aosp/
 
 # Main Declaration
 export DEFCONFIG=$DEVICE_DEFCONFIG
