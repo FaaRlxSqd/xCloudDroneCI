@@ -88,8 +88,8 @@ make -j$(nproc) O=out ARCH=arm64 ${DEVICE_DEFCONFIG}
 make -j$(nproc) ARCH=arm64 O=out \
                   CC=clang \
                   CLANG_TRIPLE=aarch64-linux-gnu- \
-                  CROSS_COMPILE=aarch64-linux-android- \
-                  CROSS_COMPILE_ARM32=arm-linux-androideabi- \
+                  CROSS_COMPILE=$(pwd)/$DEVICE_CODENAME/gcc64-aosp/bin/aarch64-linux-android- \
+                  CROSS_COMPILE_ARM32=$(pwd)/$DEVICE_CODENAME/gcc32-aosp/bin/arm-linux-androideabi- \
                   LD=ld.lld \
                   NM=llvm-nm \
                   OBJCOPY=llvm-objcopy
