@@ -33,6 +33,9 @@ IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 DATE=$(date +"%F-%S")
 START=$(date +"%s")
 PATH="${PATH}:${CLANG_ROOTDIR}/bin"
+export HASH_HEAD=$(git rev-parse --short HEAD)
+export COMMIT_HEAD=$(git log --oneline -1)
+export KERVER=$(make kernelversion)
 
 # Checking environtment
 # Warning !! Dont Change anything there without known reason.
