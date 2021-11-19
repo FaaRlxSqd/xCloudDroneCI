@@ -17,6 +17,7 @@
 
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
+cd ~
 git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 cd $DEVICE_CODENAME
 mkdir out
@@ -33,7 +34,7 @@ mkdir out/gcc32-aosp
 # Main Declaration
 export DEFCONFIG=$DEVICE_DEFCONFIG
 export TZ="Asia/Jakarta"
-export KERNEL_DIR=$(pwd)
+export KERNEL_DIR=~/lava
 export ZIPNAME="KucingKernel"
 export IMAGE="out/arch/arm64/boot/Image.gz-dtb"
 export DATE=$(date "+%m%d")
