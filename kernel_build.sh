@@ -32,15 +32,15 @@ mkdir out/gcc32-aosp
   tar -xf android.tar.gz -C out/gcc32-aosp
 
 # Main Declaration
-export DEFCONFIG=$DEVICE_DEFCONFIG
+DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG
 export TZ="Asia/Jakarta"
-export KERNEL_DIR=~/lava
+KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME
 export ZIPNAME="KucingKernel"
-export IMAGE="~/lava/out/arch/arm64/boot/Image.gz-dtb"
+IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 export DATE=$(date "+%m%d")
 export BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-export PATH="~/lava/out/clang-llvm/bin:~/lava/out/gcc64-aosp/bin:~/lava/out/gcc32-aosp/bin:${PATH}"
-export KBUILD_COMPILER_STRING="$(~/lava/out/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
+export PATH="$(pwd)/$DEVICE_CODENAME/out/clang-llvm/bin:$(pwd)/$DEVICE_CODENAME/out/gcc64-aosp/bin:$(pwd)/$DEVICE_CODENAME/out/gcc32-aosp/bin:${PATH}"
+export KBUILD_COMPILER_STRING="$($(pwd)/$DEVICE_CODENAME/out/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
 export KBUILD_BUILD_HOST=$(uname -a | awk '{print $2}')
 export ARCH=arm64
 export KBUILD_BUILD_USER=kucingabu
