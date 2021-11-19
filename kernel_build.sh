@@ -30,20 +30,22 @@ mkdir out/gcc32-aosp
   tar -C out/gcc32-aosp/ -zxvf out/android-11.0.0_r34.tar.gz
 
 # Main Declaration
-KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME # IMPORTANT ! Fill with your kernel source root directory.
-DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG # IMPORTANT ! Declare your kernel source defconfig file here.
-CLANG_ROOTDIR=$(pwd)/xRageTC # IMPORTANT! Put your clang directory here.
-export KBUILD_BUILD_USER=$BUILD_USER # Change with your own name or else.
-export KBUILD_BUILD_HOST=$BUILD_HOST # Change with your own hostname.
-CLANG_VER="$("$CLANG_ROOTDIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
-LLD_VER="$("$CLANG_ROOTDIR"/bin/ld.lld --version | head -n 1)"
-export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
-IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
-DATE=$(date +"%F-%S")
-START=$(date +"%s")
-export PATH=out/clang-llvm/bin:out/gcc64-aosp/bin:$out/gcc32-aosp/bin:${PATH}"
+export DEFCONFIG=$DEVICE_DEFCONFIG
+export TZ="Asia/Jakarta"
+export KERNEL_DIR=$(pwd)
+export ZIPNAME="KucingKernel"
+export IMAGE="out/arch/arm64/boot/Image.gz-dtb"
+export DATE=$(date "+%m%d")
+export BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+export PATH="out/clang-llvm/bin:out/gcc64-aosp/bin:out/gcc32-aosp/bin:${PATH}"
+export KBUILD_COMPILER_STRING="$($out/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
+export KBUILD_BUILD_HOST=$(uname -a | awk '{print $2}')
+export ARCH=arm64
+export KBUILD_BUILD_USER=kucingabu
 export HASH_HEAD=$(git rev-parse --short HEAD)
 export COMMIT_HEAD=$(git log --oneline -1)
+export PROCS=$(nproc --all)
+export DISTRO=$(cat /etc/issue)
 export KERVER=$(make kernelversion)
 
 # Checking environtment
