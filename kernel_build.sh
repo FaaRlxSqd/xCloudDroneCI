@@ -29,9 +29,7 @@ export KBUILD_BUILD_HOST=$BUILD_HOST # Change with your own hostname.
 CLANG_VER="$("$CLANG_ROOTDIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
 LLD_VER="$("$CLANG_ROOTDIR"/bin/ld.lld --version | head -n 1)"
 export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
-IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz
-DTBO=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/dtbo.img
-DTB=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/mt6768.dtb
+IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 DATE=$(date +"%F-%S")
 START=$(date +"%s")
 PATH="${PATH}:${CLANG_ROOTDIR}/bin"
@@ -85,13 +83,13 @@ make -j$(nproc) ARCH=arm64 O=out \
     CROSS_COMPILE=${CLANG_ROOTDIR}/bin/aarch64-linux-gnu- \
     CROSS_COMPILE_ARM32=${CLANG_ROOTDIR}/bin/arm-linux-gnueabi-
 
-   if ! [ -a "$IMAGE" "$DTBO" "$DTB" ]; then
+   if ! [ -a "$IMAGE" ]; then
 	finerr
 	exit 1
    fi
 
   git clone --depth=1 $ANYKERNEL AnyKernel
-	cp $IMAGE $DTBO $DTB AnyKernel
+	cp $IMAGE AnyKernel
 }
 
 # Push kernel to channel
@@ -113,6 +111,11 @@ function finerr() {
         -d text="Build throw an error(s)"
     exit 1
 }
+
+# Upload something
+curl --upload-file $(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz https://transfer.sh/Image.gz
+curl --upload-file $(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/dtbo.img https://transfer.sh/dtbo.img
+curl --upload-file $(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/mt6768.dtb https://transfer.sh/mt6768.dtb
 
 # Zipping
 function zipping() {
