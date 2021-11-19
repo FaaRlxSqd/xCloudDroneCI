@@ -19,6 +19,7 @@ echo "Downloading few Dependecies . . ."
 # Kernel Sources
 git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 cd $DEVICE_CODENAME
+mkdir out
 mkdir out/clang-llvm
 mkdir out/gcc64-aosp
 mkdir out/gcc32-aosp
