@@ -18,7 +18,7 @@
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
 cd ~
-git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
+git clone $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 cd $DEVICE_CODENAME
 mkdir out
 mkdir out/clang-llvm
@@ -36,11 +36,11 @@ export DEFCONFIG=$DEVICE_DEFCONFIG
 export TZ="Asia/Jakarta"
 export KERNEL_DIR=~/lava
 export ZIPNAME="KucingKernel"
-export IMAGE="out/arch/arm64/boot/Image.gz-dtb"
+export IMAGE="~/lava/out/arch/arm64/boot/Image.gz-dtb"
 export DATE=$(date "+%m%d")
 export BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-export PATH="out/clang-llvm/bin:out/gcc64-aosp/bin:out/gcc32-aosp/bin:${PATH}"
-export KBUILD_COMPILER_STRING="$(out/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
+export PATH="~/lava/out/clang-llvm/bin:~/lava/out/gcc64-aosp/bin:~/lava/out/gcc32-aosp/bin:${PATH}"
+export KBUILD_COMPILER_STRING="$(~/lava/out/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
 export KBUILD_BUILD_HOST=$(uname -a | awk '{print $2}')
 export ARCH=arm64
 export KBUILD_BUILD_USER=kucingabu
