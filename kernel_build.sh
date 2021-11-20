@@ -21,15 +21,15 @@ cd ~
 git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 cd $DEVICE_CODENAME
 mkdir out
-mkdir out/clang-llvm
-mkdir out/gcc64-aosp
-mkdir out/gcc32-aosp
+mkdir $(pwd)/$DEVICE_CODENAME/out/clang-llvm
+mkdir $(pwd)/$DEVICE_CODENAME/out/gcc64-aosp
+mkdir $(pwd)/$DEVICE_CODENAME/out/gcc32-aosp
   wget -q https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master/clang-r433403b.tar.gz -O "clang-r433403b.tar.gz"
-  tar -xf clang-r433403b.tar.gz -C out/clang-llvm
+  tar -xf clang-r433403b.tar.gz -C $(pwd)/$DEVICE_CODENAME/out/clang-llvm
   wget -q https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r48.tar.gz -O "android-11.0.0_r48.tar.gz"
-  tar -xf android-11.0.0_r48.tar.gz -C out/gcc64-aosp
+  tar -xf android-11.0.0_r48.tar.gz -C $(pwd)/$DEVICE_CODENAME/out/gcc64-aosp
   wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r48.tar.gz -O "android.tar.gz"
-  tar -xf android.tar.gz -C out/gcc32-aosp
+  tar -xf android.tar.gz -C $(pwd)/$DEVICE_CODENAME/out/gcc32-aosp
 
 # Main Declaration
 DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG
@@ -88,8 +88,8 @@ make -j$(nproc) O=out ARCH=arm64 ${DEVICE_DEFCONFIG}
 make -j$(nproc) ARCH=arm64 O=out \
                   CC=clang \
                   CLANG_TRIPLE=aarch64-linux-gnu- \
-                  CROSS_COMPILE=$CROSS/aarch64/gcc64-aosp/bin/aarch64-linux-android- \
-                  CROSS_COMPILE_ARM32=$CROSS/arm/gcc32-aosp/bin/arm-linux-androideabi- \
+                  CROSS_COMPILE=aarch64-linux-android- \
+                  CROSS_COMPILE_ARM32=arm-linux-androideabi- \
                   LD=ld.lld \
                   NM=llvm-nm \
                   OBJCOPY=llvm-objcopy
