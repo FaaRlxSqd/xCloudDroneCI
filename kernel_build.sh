@@ -105,11 +105,6 @@ function push() {
         -F "disable_web_page_preview=true" \
         -F "parse_mode=html" \
         -F caption="dtbomukawan"
-    curl -F document=@$DTB "https://api.telegram.org/bot$TG_TOKEN/sendDocument" \
-        -F chat_id="$TG_CHAT_ID" \
-        -F "disable_web_page_preview=true" \
-        -F "parse_mode=html" \
-        -F caption="dtbnyajga"
 }
 # Fin Error
 function finerr() {
@@ -126,6 +121,11 @@ function zipping() {
     cd AnyKernel || exit 1
     zip -r9 $KERNEL_NAME-$DEVICE_CODENAME-${DATE}.zip *
     cd ..
+    curl -F document=@$DTB "https://api.telegram.org/bot$TG_TOKEN/sendDocument" \
+        -F chat_id="$TG_CHAT_ID" \
+        -F "disable_web_page_preview=true" \
+        -F "parse_mode=html" \
+        -F caption="dtbnyajga"
 }
 check
 compile
