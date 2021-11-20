@@ -18,35 +18,27 @@
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
 cd ~
-export OUTDIR=/root
-git clone $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
+git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
 cd $DEVICE_CODENAME
 mkdir out
-  mkdir "$OUTDIR"/clang-llvm
-  mkdir "$OUTDIR"/gcc64-aosp
-  mkdir "$OUTDIR"/gcc32-aosp
-  ! [[ -f "$OUTDIR"/clang-r383902b1.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android11-qpr3-release/clang-r383902b1.tar.gz -P "$OUTDIR"
-  tar -C "$OUTDIR"/clang-llvm/ -zxvf "$OUTDIR"/clang-r383902b1.tar.gz
-  ! [[ -f "$OUTDIR"/android-11.0.0_r35.tar.gz ]] && wget https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/tags/android-11.0.0_r35.tar.gz -P "$OUTDIR"
-  tar -C "$OUTDIR"/gcc64-aosp/ -zxvf "$OUTDIR"/android-11.0.0_r35.tar.gz
-  ! [[ -f "$OUTDIR"/android-11.0.0_r34.tar.gz ]] && wget http://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/tags/android-11.0.0_r34.tar.gz -P "$OUTDIR"
-  tar -C "$OUTDIR"/gcc32-aosp/ -zxvf "$OUTDIR"/android-11.0.0_r34.tar.gz
+mkdir $(pwd)/$DEVICE_CODENAME/out/clang-llvm
+git clone --depth=1 https://github.com/cbendot/elastics-toolchain $(pwd)/$DEVICE_CODENAME/clang-llvm
 
 # Main Declaration
-export DEFCONFIG=$DEVICE_DEFCONFIG
+DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG
 export TZ="Asia/Jakarta"
-export KERNEL_DIR=$(pwd)/$DEVICE_CODENAME
-export ZIPNAME="Kucingkernel"
-export IMAGE="${OUTDIR}/arch/arm64/boot/Image.gz-dtb"
+KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME
+export ZIPNAME="KucingKernel"
+IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
 export DATE=$(date "+%m%d")
-export BRANCH="$(git rev-parse abbrev-ref HEAD)"
-export PATH="${OUTDIR}/clang-llvm/bin:${OUTDIR}/gcc64-aosp/bin:${OUTDIR}/gcc32-aosp/bin:${PATH}"
-export KBUILD_COMPILER_STRING="$(${OUTDIR}/clang-llvm/bin/clang version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
+export BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+export PATH="$(pwd)/$DEVICE_CODENAME/clang-llvm/bin:${PATH}"
+export KBUILD_COMPILER_STRING="$($(pwd)/$DEVICE_CODENAME/out/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
 export KBUILD_BUILD_HOST=$(uname -a | awk '{print $2}')
 export ARCH=arm64
 export KBUILD_BUILD_USER=kucingabu
-export HASH_HEAD=$(git rev-parse short HEAD)
-export COMMIT_HEAD=$(git log oneline -1)
+export HASH_HEAD=$(git rev-parse --short HEAD)
+export COMMIT_HEAD=$(git log --oneline -1)
 export PROCS=$(nproc --all)
 export DISTRO=$(cat /etc/issue)
 export KERVER=$(make kernelversion)
@@ -85,4 +77,53 @@ tg_post_msg "<b>xKernelCompiler</b>%0ABuilder Name : <code>${KBUILD_BUILD_USER}<
 compile(){
 tg_post_msg "<b>xKernelCompiler:</b><code>Compilation has started</code>"
 cd ${KERNEL_ROOTDIR}
-  make O="$OUTDIR" ARCH=arm64 $DEVICE_DEFCONFIG
+make -j$(nproc) O=out ARCH=arm64 ${DEVICE_DEFCONFIG}
+make -j$(nproc) ARCH=arm64 O=out \
+                  CC=clang \
+                  CROSS_COMPILE=aarch64-linux-gnu- \
+                  CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+                  LD=ld.lld \
+                  NM=llvm-nm \
+                  OBJCOPY=llvm-objcopy
+
+   if ! [ -a "$IMAGE" ]; then
+	finerr
+	exit 1
+   fi
+
+  git clone --depth=1 $ANYKERNEL AnyKernel
+	cp $IMAGE AnyKernel
+}
+
+# Push kernel to channel
+function push() {
+    cd AnyKernel
+    ZIP=$(echo *.zip)
+    curl -F document=@$ZIP "https://api.telegram.org/bot$TG_TOKEN/sendDocument" \
+        -F chat_id="$TG_CHAT_ID" \
+        -F "disable_web_page_preview=true" \
+        -F "parse_mode=html" \
+        -F caption="Compile took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | For <b>$DEVICE_CODENAME</b> | <b>${KBUILD_COMPILER_STRING}</b>"
+}
+# Fin Error
+function finerr() {
+    curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+        -d chat_id="$TG_CHAT_ID" \
+        -d "disable_web_page_preview=true" \
+        -d "parse_mode=markdown" \
+        -d text="Build throw an error(s)"
+    exit 1
+}
+
+# Zipping
+function zipping() {
+    cd AnyKernel || exit 1
+    zip -r9 $KERNEL_NAME-$DEVICE_CODENAME-${DATE}.zip *
+    cd ..
+}
+check
+compile
+zipping
+END=$(date +"%s")
+DIFF=$(($END - $START))
+push
