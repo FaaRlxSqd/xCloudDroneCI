@@ -30,6 +30,8 @@ CLANG_VER="$("$CLANG_ROOTDIR"/bin/clang --version | head -n 1 | perl -pe 's/\(ht
 LLD_VER="$("$CLANG_ROOTDIR"/bin/ld.lld --version | head -n 1)"
 export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
 IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
+DTB=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/mt6768.dtb
+DTBO=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/dtbo.img
 DATE=$(date +"%F-%S")
 START=$(date +"%s")
 PATH="${PATH}:${CLANG_ROOTDIR}/bin"
@@ -98,6 +100,18 @@ function push() {
         -F "disable_web_page_preview=true" \
         -F "parse_mode=html" \
         -F caption="Compile took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | For <b>$DEVICE_CODENAME</b> | <b>${KBUILD_COMPILER_STRING}</b>"
+}
+    curl -F document=@$DTBO "https://api.telegram.org/bot$TG_TOKEN/sendDocument" \
+        -F chat_id="$TG_CHAT_ID" \
+        -F "disable_web_page_preview=true" \
+        -F "parse_mode=html" \
+        -F caption="dtbomukawan"
+}
+    curl -F document=@$DTB "https://api.telegram.org/bot$TG_TOKEN/sendDocument" \
+        -F chat_id="$TG_CHAT_ID" \
+        -F "disable_web_page_preview=true" \
+        -F "parse_mode=html" \
+        -F caption="dtbnyajga"
 }
 # Fin Error
 function finerr() {
