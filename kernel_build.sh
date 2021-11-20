@@ -17,31 +17,22 @@
 
 echo "Downloading few Dependecies . . ."
 # Kernel Sources
-cd ~
 git clone --depth=1 $KERNEL_SOURCE $KERNEL_BRANCH $DEVICE_CODENAME
-cd $DEVICE_CODENAME
-mkdir out
-mkdir $(pwd)/$DEVICE_CODENAME/out/clang-llvm
-git clone --depth=1 https://github.com/cbendot/elastics-toolchain $(pwd)/$DEVICE_CODENAME/clang-llvm
+git clone --depth=1 https://github.com/cbendot/elastics-toolchain xRageTC # xRageTC set as Clang Default
 
 # Main Declaration
-DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG
-export TZ="Asia/Jakarta"
-KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME
-export ZIPNAME="KucingKernel"
+KERNEL_ROOTDIR=$(pwd)/$DEVICE_CODENAME # IMPORTANT ! Fill with your kernel source root directory.
+DEVICE_DEFCONFIG=$DEVICE_DEFCONFIG # IMPORTANT ! Declare your kernel source defconfig file here.
+CLANG_ROOTDIR=$(pwd)/xRageTC # IMPORTANT! Put your clang directory here.
+export KBUILD_BUILD_USER=$BUILD_USER # Change with your own name or else.
+export KBUILD_BUILD_HOST=$BUILD_HOST # Change with your own hostname.
+CLANG_VER="$("$CLANG_ROOTDIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
+LLD_VER="$("$CLANG_ROOTDIR"/bin/ld.lld --version | head -n 1)"
+export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
 IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
-export DATE=$(date "+%m%d")
-export BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-export PATH="$(pwd)/$DEVICE_CODENAME/clang-llvm/bin:${PATH}"
-export KBUILD_COMPILER_STRING="$($(pwd)/$DEVICE_CODENAME/out/clang-llvm/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
-export KBUILD_BUILD_HOST=$(uname -a | awk '{print $2}')
-export ARCH=arm64
-export KBUILD_BUILD_USER=kucingabu
-export HASH_HEAD=$(git rev-parse --short HEAD)
-export COMMIT_HEAD=$(git log --oneline -1)
-export PROCS=$(nproc --all)
-export DISTRO=$(cat /etc/issue)
-export KERVER=$(make kernelversion)
+DATE=$(date +"%F-%S")
+START=$(date +"%s")
+PATH="${PATH}:${CLANG_ROOTDIR}/bin"
 
 # Checking environtment
 # Warning !! Dont Change anything there without known reason.
@@ -79,12 +70,15 @@ tg_post_msg "<b>xKernelCompiler:</b><code>Compilation has started</code>"
 cd ${KERNEL_ROOTDIR}
 make -j$(nproc) O=out ARCH=arm64 ${DEVICE_DEFCONFIG}
 make -j$(nproc) ARCH=arm64 O=out \
-                  CC=clang \
-                  CROSS_COMPILE=aarch64-linux-gnu- \
-                  CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-                  LD=ld.lld \
-                  NM=llvm-nm \
-                  OBJCOPY=llvm-objcopy
+    CC=${CLANG_ROOTDIR}/bin/clang \
+    AR=${CLANG_ROOTDIR}/bin/llvm-ar \
+    NM=${CLANG_ROOTDIR}/bin/llvm-nm \
+    OBJCOPY=${CLANG_ROOTDIR}/bin/llvm-objcopy \
+    OBJDUMP=${CLANG_ROOTDIR}/bin/llvm-objdump \
+    STRIP=${CLANG_ROOTDIR}/bin/llvm-strip \
+    LD=${CLANG_ROOTDIR}/bin/ld.lld \
+    CROSS_COMPILE=${CLANG_ROOTDIR}/bin/aarch64-linux-gnu- \
+    CROSS_COMPILE_ARM32=${CLANG_ROOTDIR}/bin/arm-linux-gnueabi-
 
    if ! [ -a "$IMAGE" ]; then
 	finerr
