@@ -29,7 +29,7 @@ export KBUILD_BUILD_HOST=$BUILD_HOST # Change with your own hostname.
 CLANG_VER="$("$CLANG_ROOTDIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
 LLD_VER="$("$CLANG_ROOTDIR"/bin/ld.lld --version | head -n 1)"
 export KBUILD_COMPILER_STRING="$CLANG_VER with $LLD_VER"
-IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz-dtb
+IMAGE=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/Image.gz
 DTB=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/mt6768.dtb
 DTBO=$(pwd)/$DEVICE_CODENAME/out/arch/arm64/boot/dtbo.img
 DATE=$(date +"%F-%S")
@@ -89,6 +89,8 @@ make -j$(nproc) ARCH=arm64 O=out \
 
   git clone --depth=1 $ANYKERNEL AnyKernel
 	cp $IMAGE AnyKernel
+        cp $DTBO AnyKernel
+        mv $DTB AnyKernel/dtb
 }
 
 # Push kernel to channel
@@ -100,11 +102,6 @@ function push() {
         -F "disable_web_page_preview=true" \
         -F "parse_mode=html" \
         -F caption="Compile took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | For <b>$DEVICE_CODENAME</b> | <b>${KBUILD_COMPILER_STRING}</b>"
-    curl -F document=@$DTBO "https://api.telegram.org/bot$TG_TOKEN/sendDocument" \
-        -F chat_id="$TG_CHAT_ID" \
-        -F "disable_web_page_preview=true" \
-        -F "parse_mode=html" \
-        -F caption="dtbomukawan"
 }
 # Fin Error
 function finerr() {
@@ -121,11 +118,6 @@ function zipping() {
     cd AnyKernel || exit 1
     zip -r9 $KERNEL_NAME-$DEVICE_CODENAME-${DATE}.zip *
     cd ..
-    curl -F document=@$DTB "https://api.telegram.org/bot$TG_TOKEN/sendDocument" \
-        -F chat_id="$TG_CHAT_ID" \
-        -F "disable_web_page_preview=true" \
-        -F "parse_mode=html" \
-        -F caption="dtbnyajga"
 }
 check
 compile
